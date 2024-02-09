@@ -38,11 +38,21 @@ defmodule Voting.BordaTest do
 
   describe "run/1" do
     test "recognizes a winner" do
-      assert B.run([~w(a b c), ~w(a b c), ~w(b a c)], 3) == {:winner, "a"}
+      assert B.run([~w(a b c), ~w(a b c), ~w(b a c)]) == {:winner, "a"}
     end
 
     test "recognizes a tie" do
-      assert B.run([~w(a c b), ~w(b c a)], 2) == {:tie, ~w(a b)}
+      assert B.run([~w(a c b), ~w(b c a)]) == {:tie, ~w(a b c)}
+    end
+  end
+
+  describe "candidate_count/1" do
+    test "correct candidate count" do
+      assert B.candidate_count([
+        ~w(a b c),
+        ~w(a b),
+        ~w(d)
+      ]) == 4
     end
   end
 end

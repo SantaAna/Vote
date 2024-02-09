@@ -8,17 +8,31 @@ defmodule Voting.Borda do
   @type vote_tally() :: %{String.t() => integer()}
   @type result() :: {:winner, String.t()} | {:tie, [String.t()]}
 
-  @spec run(ballots :: [ballot()], candidate_count :: integer()) :: result()
-  def run(ballots, candidate_count) do
+  @doc """
+  Determines the result given a list of ballots.
+  Each ballot should be a list of strings in 
+  descending preference order.
+  """
+  @spec run(ballots :: [ballot()]) :: result()
+  def run(ballots) do
+    candidate_count = candidate_count(ballots)
+
     ballots
     |> score_ballots(candidate_count)
     |> Enum.sort_by(fn {_k, v} -> v end, :desc)
     |> determine_result()
   end
 
+  @spec candidate_count(ballots :: [ballot()]) :: integer()
+  def candidate_count(ballots) do
+    ballots
+    |> List.flatten()
+    |> Enum.uniq()
+    |> Enum.count()
+  end
+
   @spec determine_result(list({String.t(), integer()})) :: result()
-  def determine_result(sorted_counts) do
-    {_, m} = hd(sorted_counts)
+  def determine_result(sorted_counts = [{_, m} | _]) do
     ties = Enum.take_while(sorted_counts, fn {_, c} -> c == m end)
 
     if length(ties) > 1 do

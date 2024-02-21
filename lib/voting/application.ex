@@ -17,7 +17,9 @@ defmodule Voting.Application do
       # Start a worker by calling: Voting.Worker.start_link(arg)
       # {Voting.Worker, arg},
       # Start to serve requests, typically the last entry
-      VotingWeb.Endpoint
+      VotingWeb.Endpoint,
+      Voting.Election.Registry,
+      Voting.Election.Supervisor
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

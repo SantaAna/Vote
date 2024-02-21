@@ -13,7 +13,6 @@ defmodule Voting.Election.Server do
 
     election = Voting.Election.new(type, election_opts)
     server_opts = Keyword.merge(default_server_opts, server_opts) |> Map.new()
-
     GenServer.start_link(Voting.Election.Server, {election, server_opts}, name: via_tuple(election_opts[:id]))
   end
 
@@ -31,17 +30,14 @@ defmodule Voting.Election.Server do
   def handle_call(:get_id, _from, {%{id: id} = election, _} = state), do: {:reply, id, state}
 
   def submit_ballot(name, voter_id, ballot) do
-    GenServer.cast(via_tuple(name), {:submit, ballot, voter_id})
+    GenServer.cast(via_tuple(name), {:submit, ballot})
   end
 
-  def submit_ballot(name, ballot) do
-    GenServer.cast(via_tuple(name), {:submit, ballot, "anon"})
-  end
 
   @impl true
-  def handle_cast({:submit, ballot, voter_id}, {election, %{notify_function: nf} = server_opts}) do
+  def handle_cast({:submit, ballot}, {election, %{notify_function: nf} = server_opts}) do
     nf.("ballot added: #{ballot}")
-    {:noreply, {Election.submit_ballot(election,voter_id,ballot), server_opts}}
+    {:noreply, {Election.submit_ballot(election, ballot), server_opts}}
   end
 
   def run_election(name) do
@@ -64,7 +60,7 @@ defmodule Voting.Election.Server do
 
   @impl true
   def handle_cast(:stop_election, {election, %{notify_function: nf}} = state) do
-    nf.("election stoped for election with id #{election.id}")
+    nf.("election stoped for election with id #{election.id}") 
     {:stop, :normal, state}
   end
 
@@ -72,9 +68,9 @@ defmodule Voting.Election.Server do
     GenServer.call(via_tuple(name), :save_election)
   end
 
-  @impl true
+  @impl true 
   def handle_call(:save_election, _from, {election, %{persist_function: pf}} = state) do
-    result = pf.(Map.from_struct(election))
+    result = pf.(Map.from_struct(election)) 
     {:reply, result, state}
   end
 end

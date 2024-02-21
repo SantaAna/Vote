@@ -1,10 +1,11 @@
 defmodule Voting.Election do
-  defstruct [:type, :ballots, :candidates, :id, :owner]
+  defstruct [type: nil, ballots: %{}, candidates: nil, id: nil, owner: nil]
 
   @new_options_schema [
     ballots: [
-      type: {:list, {:list, :string}},
-      doc: "Optional list of string lists that represent ballots"
+      type: {:map, :string, {:list, :string}}, 
+      doc: "Optional list of string lists that represent ballots",
+      default: %{}
     ],
     candidates: [
       type: {:list, :string},
@@ -16,9 +17,9 @@ defmodule Voting.Election do
       doc: "A unique string ID for identifying an election."
     ],
     owner: [
-      type: :string,
+      type: :integer,
       required: false,
-      doc: "A string that identifies the owner of the election."
+      doc: "An integer that identifies the owner of the election"
     ]
   ]
 
@@ -33,15 +34,15 @@ defmodule Voting.Election do
 
     %__MODULE__{
       type: type,
-      ballots: Keyword.get(opts, :ballots, []), 
+      ballots: Keyword.get(opts, :ballots, %{}), 
       candidates: opts[:candidates],
       id: opts[:id], 
       owner: opts[:owner]
     }
   end
 
-  def submit_ballot(%__MODULE__{} = election, ballot) do
-    Map.update!(election, :ballots, & [ballot | &1])
+  def submit_ballot(%__MODULE__{} = election, voter_id, ballot) do
+    Map.update!(election, :ballots, &Map.put(&1, voter_id, ballot))
   end
 
   def run_election(%__MODULE__{ballots: ballots, type: type}) do

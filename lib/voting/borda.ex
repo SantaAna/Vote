@@ -13,7 +13,7 @@ defmodule Voting.Borda do
   Each ballot should be a list of strings in 
   descending preference order.
   """
-  @spec run(ballots :: [ballot()]) :: result()
+  @spec run(ballots :: %{String.t() => ballot()}) :: result()
   def run(ballots) do
     candidate_count = candidate_count(ballots)
 
@@ -23,9 +23,10 @@ defmodule Voting.Borda do
     |> determine_result()
   end
 
-  @spec candidate_count(ballots :: [ballot()]) :: integer()
+  @spec candidate_count(ballots :: %{String.t() => ballot()}) :: integer()
   def candidate_count(ballots) do
     ballots
+    |> Map.values()
     |> List.flatten()
     |> Enum.uniq()
     |> Enum.count()
@@ -42,9 +43,10 @@ defmodule Voting.Borda do
     end
   end
 
-  @spec score_ballots(ballots :: [ballot()], candidate_count :: integer()) :: [vote_tally()]
+  @spec score_ballots(ballots :: %{String.t() => ballot()}, candidate_count :: integer()) :: [vote_tally()]
   def score_ballots(ballots, candidate_count) do
     ballots
+    |> Map.values()
     |> Enum.map(&score_ballot(&1, candidate_count))
     |> Enum.reduce(%{}, fn b, a ->
       Map.merge(b, a, fn _k, v1, v2 -> v1 + v2 end)

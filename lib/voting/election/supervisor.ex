@@ -11,16 +11,15 @@ defmodule Voting.Election.Supervisor do
   end
   
 
-  def new_election(opts) do
+  def new_election(type, opts) do
     id = uuid4()
-    IO.inspect(opts, label: "opts")
     opts = put_in(opts, [:election_opts, :id], id) 
     result =
       DynamicSupervisor.start_child(
         __MODULE__,
         %{
           id: id,
-          start: {Voting.Election.Server, :start_link, [opts[:election_opts], opts[:server_opts]]},
+          start: {Voting.Election.Server, :start_link, [type, opts[:election_opts], opts[:server_opts]]},
           restart: :temporary
         }
       )

@@ -7,13 +7,14 @@ defmodule Voting.Borda do
   @type ballot() :: [String.t()]
   @type vote_tally() :: %{String.t() => integer()}
   @type result() :: {:winner, String.t()} | {:tie, [String.t()]}
+  @type ballots() :: %{integer() => ballot()}
 
   @doc """
   Determines the result given a list of ballots.
   Each ballot should be a list of strings in 
   descending preference order.
   """
-  @spec run(ballots :: %{String.t() => ballot()}) :: result()
+  @spec run(ballots :: ballots()) :: result()
   def run(ballots) do
     candidate_count = candidate_count(ballots)
 
@@ -23,7 +24,7 @@ defmodule Voting.Borda do
     |> determine_result()
   end
 
-  @spec candidate_count(ballots :: %{String.t() => ballot()}) :: integer()
+  @spec candidate_count(ballots :: ballots()) :: integer()
   def candidate_count(ballots) do
     ballots
     |> Map.values()
@@ -43,7 +44,7 @@ defmodule Voting.Borda do
     end
   end
 
-  @spec score_ballots(ballots :: %{String.t() => ballot()}, candidate_count :: integer()) :: [vote_tally()]
+  @spec score_ballots(ballots :: ballots(), candidate_count :: integer()) :: [vote_tally()]
   def score_ballots(ballots, candidate_count) do
     ballots
     |> Map.values()
